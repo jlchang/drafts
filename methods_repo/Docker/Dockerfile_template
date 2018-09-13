@@ -1,0 +1,82 @@
+########
+## Operating System
+########
+
+### OS version 
+####(for a list of operating system Docker image choices, visit 
+#### https://store.docker.com/search?q=linux&type=image&source=verified&category=os&operating_system=linux&page=1)
+#### install the docker image of your preferred Linux distribution and version below
+#### Example:
+#### FROM ubuntu:xenial 
+FROM <OS docker image directive here>
+#### supply your name and e-mail as the maintainer of this Dockerfile
+MAINTAINER <your name and e-mail here>
+
+######################
+## Environment
+######################
+
+## Constants - declaring environment variables for use within the Docker container
+### SOFTWARE versions
+#### Visit http://cran.rstudio.com/bin/linux, find your Linux distro's core R package name
+#### Example:
+#### ENV R_VERSION 3.5.1-1xenial
+ENV R_VERSION <OS-specific R package name here>
+
+### locations
+ENV BIN /usr/local/bin
+ENV R_DATA /usr/local/R/data
+ENV R_STUDIO /usr/local/R
+ENV SRC /usr/local/src
+
+######################
+## Dependencies and Tools
+######################
+##############
+## Helper tools
+#### for non-Debian, non-Ubuntu systems, you many need to replace apt-get with  analogous 
+#### package management commands your selected OS eg. yum (redhat) or zypper (suse) 
+RUN apt-get update && \
+    apt-get install -y unzip wget git
+
+##############
+## System tools
+#### Enumerate operating-system level dependencies below and install using pkg management
+#### Examples:
+#### ## devtools: libssl-dev, libcurl4-openssl-dev, libxml2-dev
+#### ## rgl: libglu1-mesa-dev, libfreetype6-dev
+#### RUN apt-get install -y libssl-dev libcurl4-openssl-dev libxml2-dev libxt-dev \
+####     libglu1-mesa-dev libfreetype6-dev
+RUN <pkg management install commands here>
+
+##############
+## Install R
+#### visit https://cran.rstudio.com/bin/linux/ to determine the URL for download and install
+#### of R (Note that R-base-dev should only be installed if needed for your R package)
+#### Example:
+#### RUN echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial-cran35/" | \
+####     tee -a /etc/apt/sources.list && \
+####     gpg -a --export E084DAB9 | apt-key add - && \
+####     apt-get update && \ 
+####     apt-get install -y r-recommended=${R_VERSION} && \
+####     apt-get install -y r-base=${R_VERSION}
+#### #    apt-get install -y r-base-dev=${R_VERSION}
+RUN <R install commands here>
+
+##############
+## BiocLite for installing bioconductor packages
+#### ## devtools & remotes installation
+#### ## package installation
+#### Example:
+#### RUN echo "source(\"https://bioconductor.org/biocLite.R\")" > ${SRC}/install_pkgs.R && \
+####    echo "biocLite(\"devtools\", dependencies=TRUE)" >> ${SRC}/install_pkgs.R && \
+####    echo "biocLite(\"remotes\", dependencies=TRUE)" >> ${SRC}/install_pkgs.R && \
+####     echo "biocLite(\"kstreet13/slingshot\", dependencies=TRUE)" >> ${SRC}/install_pkgs.R && \
+####     echo "biocLite()" >> ${SRC}/install_pkgs.R && \
+####     Rscript ${SRC}/install_pkgs.R
+RUN <Bioclite install commands here>
+    
+#### Alternative syntax for installing bioconductor packages
+#### Example:
+#### RUN Rscript -e 'source("http://bioconductor.org/biocLite.R") \
+####     library(BiocInstaller); biocLite("tidyverse", dep = TRUE)'
