@@ -18,7 +18,16 @@ pargs <- optparse::add_option(pargs, c("--input"),
             help = paste("Input file for analysis.",
                          "SingleCellExperiment object in rds file format",
                          "[REQUIRED]"))
-                         
+
+pargs <- optparse::add_option(pargs, c("--cluster_output"),
+            type = "logical",
+            default = FALSE,
+            action = "store",
+            dest = "cluster_out",
+            metavar = "cluster_out",
+            help = paste("generate validation output file, sc3_labels.csv ",
+                         "[Default %default]"))
+
 pargs <- optparse::add_option(pargs, c("--ks"),
             type = "character",
             default = "5",
@@ -28,6 +37,14 @@ pargs <- optparse::add_option(pargs, c("--ks"),
             help = paste("range of number of clusters, ",
                          "k, used for SC3 clustering",
                          "Can also be a single integer.",
+                         "[Default %default]"))
+                         
+pargs <- optparse::add_option(pargs, c("--seed"),
+            type = "integer",
+            default = 1,
+            action = "store",
+            dest = "seed",
+            help = paste("Set random seed to enable reproducible behavior",
                          "[Default %default]"))
                      
 # Check arguments to ensure user input meets certain requirements.    
@@ -63,9 +80,17 @@ output_file <- paste0(input_file[1:length(input_file) - 1],
 sce <- readRDS(args_parsed$input[1]);
 
 #run method on data
-sce <- sc3(sce, ks = args_parsed$ks[1], biology = T);
+sce <- sc3(sce, ks = args_parsed$ks[1], biology = T, rand_seed = args_parsed$seed[1]);
 
 #generate data
 
 #save data to current working directory
 saveRDS(sce, output_file)
+
+if (args_parsed$cluster_out[1]) {
+  cluster_Col <- paste0("sc3_", args_parsed$ks[1], "_clusters")
+  labels <- cbind(colnames(sce), eval(parse(text = paste0("colData(sce)$",
+                                                          cluster_Col))))
+  write.table(labels, file = "sc3_labels.csv", row.names = FALSE,
+              col.names = FALSE, quote = FALSE, sep = ",")
+}
