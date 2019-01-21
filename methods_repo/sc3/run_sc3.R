@@ -142,7 +142,7 @@ output_file_h <- paste0(dir_in, "/", "SC3-", base_in)
 ## define cell labels file name
 if (args_parsed$demo[1]){
   args_parsed$cell_labels[1] <- TRUE
-  labels_file_h <- here("validation.csv")
+  labels_file_h <- here("demo_labels.csv")
 } else {
   if (! dir_in == "." ) {
     labels_file_h <- paste0(dir_in, "/", "SC3_labels.csv")
