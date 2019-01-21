@@ -103,7 +103,7 @@ pargs <- optparse::add_option(pargs, c("--validate"),
 ## (accepted options: "reference", "bad_cell", "bad_value")
 pargs <- optparse::add_option(pargs, c("--validation_type"),
                               type = "character",
-                              default = "reference_source",
+                              default = "reference",
                               action = "store",
                               metavar = "",
                               dest = "val_type")
@@ -178,7 +178,7 @@ if (args_parsed$demo[1]) {
     } else if (args_parsed$val_type[1] == "bad_value") {
       download.file(bad_value_source, reference_output_h)
     } else {
-      stop("bad value for validate parameter")
+      stop("bad value for validation_type parameter")
     }
 
     #check if reference file exists
