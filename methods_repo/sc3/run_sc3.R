@@ -204,7 +204,10 @@ if (args_parsed$demo[1]) {
                 quote = FALSE, sep = ",")
       ref_name <- paste0(args_parsed$val_type[1], ".csv")
       file.rename(reference_output_h, here(ref_name))
-      stop("validation failed - cell names do not match reference")
+      cell_check_fail <- paste("validation failed",
+                          "- cell names do not match reference")
+      logging::logerror(cell_check_fail)
+      stop(cell_check_fail)
     }
     #coerce the reference data in preparation for calculating relative error
     test_matrix <- as.matrix(ref)
@@ -225,7 +228,10 @@ if (args_parsed$demo[1]) {
                   quote = FALSE, sep = ",")
       ref_name <- paste0(args_parsed$val_type[1], ".csv")
       file.rename(reference_output_h, here(ref_name))
-      stop("validation failed - max relative error exceeds threshold")
+      cell_value_fail <- paste("validation failed",
+                               "- max relative error exceeds threshold")
+      logging::logerror(cell_value_fail)
+      stop(cell_value_fail)
     }
 # run full sc3 analysis on user-supplied input data
 } else {
