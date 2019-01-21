@@ -236,11 +236,12 @@ if (args_parsed$demo[1]) {
 # run full sc3 analysis on user-supplied input data
 } else {
   sce <- sc3(sce, ks = args_parsed$ks[1], biology = T);
-  #save data to current working directory
-  saveRDS(sce, output_file_h)
-  logging::loginfo(paste("SingleCellExperiment object", output_file_h,
-                       "saved", sep = " "))
 }
+
+#save data to current working directory
+saveRDS(sce, output_file_h)
+logging::loginfo(paste("SingleCellExperiment object", output_file_h,
+                       "saved", sep = " "))
 
 #if requested, save cell labels file
 if (args_parsed$cell_labels[1]) {
