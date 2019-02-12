@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+cat("Run local validation script\n")
+
 # Load libraries
 suppressPackageStartupMessages(library("optparse"));
 suppressPackageStartupMessages(library("logging"));
@@ -20,12 +22,6 @@ demo_input_h <- here("deng-reads.rds")
 reference_source <- paste0("https://raw.githubusercontent.com/",
   "jlchang/drafts/master/methods_repo/sc3/reference_output.csv")
 reference_output_h <- here("reference_output.csv")
-
-## TEMPORARY "bad" reference output script development
-bad_cell_source <- paste0("https://raw.githubusercontent.com/",
-  "jlchang/drafts/master/methods_repo/sc3/bad_cell.csv")
-bad_value_source <- paste0("https://raw.githubusercontent.com/",
-  "jlchang/drafts/master/methods_repo/sc3/bad_value.csv")
 
 
 
@@ -99,14 +95,6 @@ pargs <- optparse::add_option(pargs, c("--validate"),
                               help = paste("run SC3 validation,",
                                           "[Default %default]"))
 
-## TEMPORARY options script development 
-## (accepted options: "reference", "bad_cell", "bad_value")
-pargs <- optparse::add_option(pargs, c("--validation_type"),
-                              type = "character",
-                              default = "reference",
-                              action = "store",
-                              metavar = "",
-                              dest = "val_type")
                      
                          
 args_parsed <- optparse::parse_args(pargs)
@@ -170,16 +158,9 @@ if (args_parsed$demo[1]) {
     #clean up downloaded test data before running validation steps
     file.remove(input_file_h)
 
-    ## TEMPORARY option parsing script development
-    if (args_parsed$val_type[1] == "reference") {
-      download.file(reference_source, reference_output_h)
-    } else if (args_parsed$val_type[1] == "bad_cell") {
-      download.file(bad_cell_source, reference_output_h)
-    } else if (args_parsed$val_type[1] == "bad_value") {
-      download.file(bad_value_source, reference_output_h)
-    } else {
-      stop("bad value for validation_type parameter")
-    }
+    #for validation mode, download reference output data
+    download.file(reference_source, reference_output_h)
+
 
     #check if reference file exists
     if (!file.exists(reference_output_h)){
@@ -233,15 +214,17 @@ if (args_parsed$demo[1]) {
       logging::logerror(cell_value_fail)
       stop(cell_value_fail)
     }
-# run full sc3 analysis on user-supplied input data
-} else {
-  sce <- sc3(sce, ks = args_parsed$ks[1], biology = T);
 }
 
-#save data to current working directory
-saveRDS(sce, output_file_h)
-logging::loginfo(paste("SingleCellExperiment object", output_file_h,
-                       "saved", sep = " "))
+if (args_parsed$validate[1]) {
+  #no need to save resulting object but validation results are in log
+  cat("validation logged in SC3_log.txt \n")
+} else {
+  #save resulting data object to current working directory
+  saveRDS(sce, output_file_h)
+  logging::loginfo(paste("SingleCellExperiment object", output_file_h,
+                        "saved", sep = " "))
+}
 
 #if requested, save cell labels file
 if (args_parsed$cell_labels[1]) {
