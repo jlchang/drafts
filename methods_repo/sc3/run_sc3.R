@@ -1,7 +1,5 @@
 #!/usr/bin/env Rscript
 
-cat("Run local validation script\n")
-
 # Load libraries
 suppressPackageStartupMessages(library("optparse"));
 suppressPackageStartupMessages(library("logging"));
