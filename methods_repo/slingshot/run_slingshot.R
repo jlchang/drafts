@@ -181,7 +181,7 @@ if ( args$validate ){
     result <- slingshot(sce, reducedDim = args$reduced_dim, 
                         start.clus = args$start_clus, end.clus = args$end_clus)
   }
-} else if ( args$input_type == "matrix" ) {
+} else if ( args$input_type == "plain" ) {
     coordinates <- as.matrix(read.delim(args$input, header = FALSE,
                             row.names = NULL, sep = "\t", skip = 0))
     labels <- as.vector(as.numeric(read.delim(args$cluster_labels,
@@ -189,6 +189,14 @@ if ( args$validate ){
                         stringsAsFactors = TRUE, skip = 0)[, 1]))
     result <- slingshot(coordinates, labels,
                         start.clus = args$start_clus, end.clus = args$end_clus)
+} else if ( args$input_type == "matrix" ) {
+  coordinates <- as.matrix(read.delim(args$input, header = TRUE,
+                                      row.names = 1, sep = "\t"))
+  labels <- as.vector(as.numeric(read.delim(args$cluster_labels,
+                                            header = TRUE, row.names = 1, sep = "\t",
+                                            stringsAsFactors = TRUE)[, 1]))
+  result <- slingshot(coordinates, labels,
+                      start.clus = args$start_clus, end.clus = args$end_clus)
 } else {
     error_message <- paste0("Unknown input type, ", args$input_type, ". ",
     "Please check your input-type and try again")
