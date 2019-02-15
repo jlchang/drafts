@@ -173,8 +173,14 @@ if ( args$validate ){
     }
 } else if ( args$input_type == "rds" ) {
   sce <- readRDS(args$input)
-  result <- slingshot(sce, reducedDim = args$reduced_dim,
-                      start.clus = args$start_clus, end.clus = args$end_clus)
+  if ( "cluster_labels" %in% names(args) ) {
+    result <- slingshot(sce, clusterLabels = args$cluster_labels,
+                        reducedDim = args$reduced_dim, 
+                        start.clus = args$start_clus, end.clus = args$end_clus)
+  } else {
+    result <- slingshot(sce, reducedDim = args$reduced_dim, 
+                        start.clus = args$start_clus, end.clus = args$end_clus)
+  }
 } else if ( args$input_type == "matrix" ) {
     coordinates <- as.matrix(read.delim(args$input, header = FALSE,
                             row.names = NULL, sep = "\t", skip = 0))
