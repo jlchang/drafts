@@ -6,14 +6,17 @@
 #####
 
 ## input data for demo and validation
-validation_input_source <- paste0("https://github.com/hemberg-lab/",
-  "scRNA.seq.course/raw/master/deng/deng-reads.rds")
+#validation_input_source <- paste0("https://github.com/hemberg-lab/",
+#  "scRNA.seq.course/raw/master/deng/deng-reads.rds")
+validation_input_source <- paste0("https://scrnaseq-public-datasets",
+  ".s3.amazonaws.com/scater-objects/deng-reads.rds")
 validation_input <- "deng-reads.rds"
 
 ## reference output for validation
 ## TEMPORARY LOCATION for script development
 validation_reference_source <- paste0("https://raw.githubusercontent.com/",
-  "jlchang/drafts/master/methods_repo/sc3/reference_output.csv")
+  "HumanCellAtlas/analysis-tools-registry-supplemental/master/",
+  "sc3/reference_output.csv")
 
 # Download reference test data for validation 
 cat("***Loading test data\n")
@@ -21,16 +24,16 @@ download.file(validation_input_source, validation_input)
 
 # Make sure the reference test data exists 
 if (!file.exists(validation_input)){
-    stop(paste0("Reference test data, ", validation_input, 
+    stop(paste0("Reference test data, ", validation_input,
                 ", failed to download. Please try again."))
-} 
+}
 
 #####
 # Load test data
 #####
 sce <- readRDS(validation_input)
 #check reference test data is expected dimensions
-if (! all( dim(sce) == c(22431,268))) {
+if (! all( dim(sce) == c(22431, 268))) {
     stop(paste0("Unexpected content in reference test data file ",
                  validation_input, " - validation aborted."))
 }
@@ -38,7 +41,7 @@ if (! all( dim(sce) == c(22431,268))) {
 ref <- read.table(validation_reference_source, header = FALSE,
                   row.names = 1, sep = ",")
 #check reference test data is expected dimensions
-if (! all( dim(ref) == c(268,19))) {
+if (! all( dim(ref) == c(268, 19))) {
     stop(paste0("Unexpected content in reference output file at ",
                 validation_reference_source, " - validation aborted."))
 }
