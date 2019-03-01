@@ -37,7 +37,9 @@ curl -L -o  ${validation_input_dir}/infercnv.png https://raw.githubusercontent.c
 diff /tmp/infercnv.png /inferCNV/example/infercnv.png
 retVal=$?
 if [ $retVal -ne 0 ]; then
-    echo "Validation failed - infercnv.png does not match reference output file"
+    cp /inferCNV/example/infercnv.png /data/reference_infercnv.png
+    cp /tmp/infercnv.png /data/generated_infercnv.png
+    echo "Validation failed - generated infercnv.png does not match reference output file"
     exit $retVal
 fi
 
