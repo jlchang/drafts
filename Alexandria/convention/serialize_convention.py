@@ -14,6 +14,7 @@ __license__ = "MIT"
 __email__ = "jlchang@broadinstitute.org"
 __status__ = "Development"
 
+
 def create_parser():
     """
     Command Line parser for serialize_convention
@@ -38,6 +39,7 @@ def create_parser():
     parser.add_argument('--output_file', '-o', type=str,
                         help='Output file name [optional]', default=None)
     return parser
+
 
 def addDependency(key, value, dict):
     """
@@ -93,17 +95,21 @@ def buildSingleObject(row, dict):
     else:
         dict['type'] = row['type']
 
+
 def buildSchemaInfo(collective):
     """
     generate dictionary of schema info for the collective
     """
     info = {}
     info['$schema'] = 'http://json-schema.org/draft-07/schema#'
-    info['$id'] = 'http://singlecell.broadinstitute.org/schemas/' + collective + '.schema.json'
+    info['$id'] = ('http://singlecell.broadinstitute.org/schemas/'
+                   '%s.schema.json' % (collective))
     info['title'] = collective + ' Metadata Convention'
-    info['description'] =  'Metadata convention for the ' + collective + ' project'
+    info['description'] = ('Metadata convention for the '
+                           '%s project' % (collective))
     info['additionalProperties'] = "true"
     return info
+
 
 def dumpJSON(dict, filename):
     """
@@ -217,7 +223,7 @@ def serialize_convention(convention, input_convention):
     return convention
 
 
-def writeSchema(dict, inputname, label, filename):       
+def writeSchema(dict, inputname, label, filename):
     if filename:
         filename = generateOutputName(filename, label)
     else:
@@ -228,9 +234,9 @@ def writeSchema(dict, inputname, label, filename):
 
 if __name__ == '__main__':
     args = create_parser().parse_args()
-    input_convention=args.input_convention
-    label=args.label
-    output_file=args.output_file
+    input_convention = args.input_convention
+    label = args.label
+    output_file = args.output_file
     collective = args.collective
     schemaInfo = buildSchemaInfo(collective)
     convention = serialize_convention(schemaInfo, input_convention)
