@@ -107,7 +107,6 @@ def buildSchemaInfo(collective):
     info['title'] = collective + ' Metadata Convention'
     info['description'] = ('Metadata convention for the '
                            '%s project' % (collective))
-    info['additionalProperties'] = "true"
     return info
 
 
