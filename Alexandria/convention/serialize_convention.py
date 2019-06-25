@@ -27,6 +27,10 @@ def create_parser():
     # add arguments
     parser.add_argument('input_convention',
                         help='Metadata convention tsv file')
+    parser.add_argument('--collective', '-c', type=str,
+                        help='name of the project that the metadata ' +
+                        'convention belongs to [Required]',
+                        required=True, default=None)
     parser.add_argument('--label', '-l', type=str,
                         help='Label to insert into the file name ' +
                         'for the Metadata convention json file [optional]',
@@ -89,6 +93,17 @@ def buildSingleObject(row, dict):
     else:
         dict['type'] = row['type']
 
+def buildSchemaInfo(collective):
+    """
+    generate dictionary of schema info for the collective
+    """
+    info = {}
+    info['$schema'] = 'http://json-schema.org/draft-07/schema#'
+    info['$id'] = 'http://singlecell.broadinstitute.org/schemas/' + collective + '.schema.json'
+    info['title'] = collective + ' Metadata Convention'
+    info['description'] =  'Metadata convention for the ' + collective + ' project'
+    info['additionalProperties'] = "true"
+    return info
 
 def dumpJSON(dict, filename):
     """
@@ -97,6 +112,7 @@ def dumpJSON(dict, filename):
     with open(filename, 'w') as jsonfile:
         json.dump(dict, jsonfile, sort_keys=True, indent=4)
     jsonfile.close()
+    print("end dumpJSON")
 
 
 def cleanJSON(filename):
@@ -118,6 +134,7 @@ def writeJSONSchema(filename, object):
     """
     with open(filename, 'w') as jsonfile:
         jsonfile.write(object)
+    print("end writeJSONSchema")
 
 
 def generateOutputName(inputname, label):
@@ -137,12 +154,11 @@ def generateOutputName(inputname, label):
     return outputname
 
 
-def serialize_convention(input_convention):
+def serialize_convention(convention, input_convention):
     """
     Build convention as a Python dictionary
     """
 
-    convention = {}
     properties = {}
     required = []
     dependencies = {}
@@ -213,5 +229,9 @@ def writeSchema(dict, inputname, label, filename):
 if __name__ == '__main__':
     args = create_parser().parse_args()
     input_convention=args.input_convention
-    properties = serialize_convention(input_convention)
-    writeSchema(properties, input_convention, label=args.label, output_file=args.output_file)
+    label=args.label
+    output_file=args.output_file
+    collective = args.collective
+    schemaInfo = buildSchemaInfo(collective)
+    convention = serialize_convention(schemaInfo, input_convention)
+    writeSchema(convention, input_convention, label, output_file)

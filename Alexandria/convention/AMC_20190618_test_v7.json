@@ -1,4 +1,7 @@
 {
+    "$id": "http://singlecell.broadinstitute.org/schemas/Alexandria.schema.json", 
+    "$schema": "http://json-schema.org/draft-07/schema#", 
+    "additionalProperties": "true", 
     "dependencies": {
         "cell_type-ontology_label": [
             "cell_type"
@@ -63,6 +66,7 @@
             "vaccination"
         ]
     }, 
+    "description": "Metadata convention for the Alexandria project", 
     "properties": {
         "biosample_id": {
             "type": "string"
@@ -248,5 +252,6 @@
         "disease-ontology_label", 
         "library_preparation_protocol", 
         "library_preparation_protocol-ontology_label"
-    ]
+    ], 
+    "title": "Alexandria Metadata Convention"
 }
