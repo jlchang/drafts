@@ -15,15 +15,12 @@ for studies participating under the convention.
 
 EXAMPLE
 # Generate json file for Alexandria from the Alexandria metadata convention tsv
-$ python serialize_convention.py Alexandria AMC_20190618_test_v7.tsv 
+$ serialize_convention.py project metadata_convention.tsv 
+
+# if using the test data in this repo and wanted output in current working dir
+$ serialize_convention.py -p . Alexandria ../tests/data/AMC_v0.8.tsv 
 
 """
-
-__author__ = "Jean Chang"
-__copyright__ = "Copyright 2019"
-__license__ = "MIT"
-__email__ = "jlchang@broadinstitute.org"
-__status__ = "Development"
 
 
 def create_parser():
@@ -34,20 +31,20 @@ def create_parser():
     """
     # create the argument parser
     parser = argparse.ArgumentParser(
-        description='Produce JSON Schema from metadata convention tsv file.',
+        description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     # add arguments
-    parser.add_argument('collective', type=str,
-                        help='name of the project that the metadata ' +
-                        'convention belongs to [Required]')
-    parser.add_argument('input_convention',
-                        help='Metadata convention tsv file')
     parser.add_argument('--label', '-l', type=str,
                         help='Label to insert into the file name ' +
                         'for the Metadata convention json file [optional]',
                         default=None),
-    parser.add_argument('--output_file', '-o', type=str,
-                        help='Output file name [optional]', default=None)
+    parser.add_argument('--output-path', '-p', type=str,
+                        help='Path for output file [optional]', default=None)
+    parser.add_argument('project', type=str,
+                        help='One-word project name that the metadata ' +
+                        'convention belongs to [Required]')
+    parser.add_argument('input_convention',
+                        help='Metadata convention tsv file [Required]')
     return parser
 
 
@@ -73,13 +70,11 @@ def build_array_object(row):
     if row['class'] == 'time':
         dict['type'] = row['type']
         dict['format'] = row['class']
-        print('dict time', dict, 'for', row['attribute'])
         return dict
     # handle controlled-list attributes as enum
     elif row['class'] == 'enum':
         dict['type'] = row['type']
         dict[row['class']] = row['controlled_list_entries']
-        print('dict enum', dict, 'for', row['attribute'])
         return dict
     else:
         dict['type'] = row['type']
@@ -94,29 +89,28 @@ def build_single_object(row, dict):
     if row['class'] == 'time':
         dict['type'] = row['type']
         dict['format'] = row['class']
-        print('single time', dict, 'for', row['attribute'])
 
     # handle controlled-list attributes as enum
     elif row['class'] == 'enum':
         dict['type'] = row['type']
         dict[row['class']] = row['controlled_list_entries']
-        print('single enum', dict, 'for', row['attribute'])
 
     else:
         dict['type'] = row['type']
 
 
-def build_schema_info(collective):
+def build_schema_info(project):
     """
-    generate dictionary of schema info for the collective
+    generate dictionary of schema info for the project
     """
     info = {}
-    info['$schema'] = 'http://json-schema.org/draft-07/schema#'
-    info['$id'] = ('http://singlecell.broadinstitute.org/schemas/'
-                   '%s.schema.json' % (collective))
-    info['title'] = collective + ' Metadata Convention'
+    info['$schema'] = 'https://json-schema.org/draft-07/schema#'
+    # $id below is a placeholder, not functional yet
+    info['$id'] = ('https://singlecell.broadinstitute.org/api/v1/metadata-schemas/'
+                   '%s.schema.json' % (project))
+    info['title'] = project + ' Metadata Convention'
     info['description'] = ('Metadata convention for the '
-                           '%s project' % (collective))
+                           '%s project' % (project))
     return info
 
 
@@ -126,8 +120,6 @@ def dump_json(dict, filename):
     """
     with open(filename, 'w') as jsonfile:
         json.dump(dict, jsonfile, sort_keys=True, indent=4)
-    jsonfile.close()
-    print("end dump_json")
 
 
 def clean_json(filename):
@@ -139,7 +131,6 @@ def clean_json(filename):
         jsonstring = re.sub(r'"\[', r'[', jsonstring)
         jsonstring = re.sub(r'\]"', r']', jsonstring)
         jsonstring = re.sub(r'\\"', r'"', jsonstring)
-    jsonfile.close()
     return jsonstring
 
 
@@ -149,10 +140,9 @@ def write_json_schema(filename, object):
     """
     with open(filename, 'w') as jsonfile:
         jsonfile.write(object)
-    print("end write_json_schema")
 
 
-def generate_output_name(inputname, label):
+def generate_output_name(inputname, label, path = ''):
     """
     Build output filename from inputname
     """
@@ -162,7 +152,9 @@ def generate_output_name(inputname, label):
         labeledName = '.'.join([name, label, 'json'])
     else:
         labeledName = '.'.join([name, 'json'])
-    if head:
+    if path:
+        outputname = '/'.join([path, labeledName])
+    elif head:
         outputname = '/'.join([head, labeledName])
     else:
         outputname = labeledName
@@ -208,7 +200,6 @@ def serialize_convention(convention, input_convention):
             # handle properties unique to the ontology class of attributes
             if row['class'] == 'ontology':
                 entry[row['class']] = row['ontology']
-                entry['ontology_root'] = row['ontology_root']
 
             # handle arrays of values
             if row['array']:
@@ -227,16 +218,11 @@ def serialize_convention(convention, input_convention):
         convention['properties'] = properties
         convention['required'] = required
         convention['dependencies'] = dependencies
-
-    tsvfile.close()
     return convention
 
 
-def write_schema(dict, inputname, label, filename):
-    if filename:
-        filename = generate_output_name(filename, label)
-    else:
-        filename = generate_output_name(inputname, label)
+def write_schema(dict, inputname, label, filepath = ''):
+    filename = generate_output_name(inputname, label, filepath)
     dump_json(dict, filename)
     write_json_schema(filename, clean_json(filename))
 
@@ -245,8 +231,8 @@ if __name__ == '__main__':
     args = create_parser().parse_args()
     input_convention = args.input_convention
     label = args.label
-    output_file = args.output_file
-    collective = args.collective
-    schemaInfo = build_schema_info(collective)
-    convention = serialize_convention(schemaInfo, input_convention)
-    write_schema(convention, input_convention, label, output_file)
+    output_path = args.output_path
+    project = args.project
+    schema_info = build_schema_info(project)
+    convention = serialize_convention(schema_info, input_convention)
+    write_schema(convention, input_convention, label, output_path)
