@@ -6,7 +6,18 @@ import os
 import json
 import re
 
-"""Produce JSON Schema from metadata convention tsv file"""
+"""Produce JSON Schema from metadata convention tsv file
+
+DESCRIPTION
+This CLI takes a tsv metadata convention and creates a JSON Schema representation.
+The JSON schema represents the rules that should be enforced on metadata files 
+for studies participating under the convention.
+
+EXAMPLE
+# Generate json file for Alexandria from the Alexandria metadata convention tsv
+$ python serialize_convention.py Alexandria AMC_20190618_test_v7.tsv 
+
+"""
 
 __author__ = "Jean Chang"
 __copyright__ = "Copyright 2019"
@@ -26,12 +37,11 @@ def create_parser():
         description='Produce JSON Schema from metadata convention tsv file.',
         formatter_class=argparse.RawDescriptionHelpFormatter)
     # add arguments
+    parser.add_argument('collective', type=str,
+                        help='name of the project that the metadata ' +
+                        'convention belongs to [Required]')
     parser.add_argument('input_convention',
                         help='Metadata convention tsv file')
-    parser.add_argument('--collective', '-c', type=str,
-                        help='name of the project that the metadata ' +
-                        'convention belongs to [Required]',
-                        required=True, default=None)
     parser.add_argument('--label', '-l', type=str,
                         help='Label to insert into the file name ' +
                         'for the Metadata convention json file [optional]',
@@ -41,7 +51,7 @@ def create_parser():
     return parser
 
 
-def addDependency(key, value, dict):
+def add_dependency(key, value, dict):
     """
     Add dependency to appopriate dictionary
 
@@ -54,7 +64,7 @@ def addDependency(key, value, dict):
         dict[key] = [value]
 
 
-def buildArrayObject(row):
+def build_array_object(row):
     """
     Build "items" dictionary object according to Class type
     """
@@ -76,7 +86,7 @@ def buildArrayObject(row):
         return dict
 
 
-def buildSingleObject(row, dict):
+def build_single_object(row, dict):
     """
     Add appropriate class properties for non-array attributes
     """
@@ -96,7 +106,7 @@ def buildSingleObject(row, dict):
         dict['type'] = row['type']
 
 
-def buildSchemaInfo(collective):
+def build_schema_info(collective):
     """
     generate dictionary of schema info for the collective
     """
@@ -110,17 +120,17 @@ def buildSchemaInfo(collective):
     return info
 
 
-def dumpJSON(dict, filename):
+def dump_json(dict, filename):
     """
     write metadata convention json file
     """
     with open(filename, 'w') as jsonfile:
         json.dump(dict, jsonfile, sort_keys=True, indent=4)
     jsonfile.close()
-    print("end dumpJSON")
+    print("end dump_json")
 
 
-def cleanJSON(filename):
+def clean_json(filename):
     """
     remove escape characters to produce proper JSON Schema format
     """
@@ -133,16 +143,16 @@ def cleanJSON(filename):
     return jsonstring
 
 
-def writeJSONSchema(filename, object):
+def write_json_schema(filename, object):
     """
     write JSON Schema file
     """
     with open(filename, 'w') as jsonfile:
         jsonfile.write(object)
-    print("end writeJSONSchema")
+    print("end write_json_schema")
 
 
-def generateOutputName(inputname, label):
+def generate_output_name(inputname, label):
     """
     Build output filename from inputname
     """
@@ -182,12 +192,12 @@ def serialize_convention(convention, input_convention):
             if row['dependency']:
                 # dependencies (aka "if" relationships) are uni-directional
                 # if 'attribute', 'dependency' must also exist
-                addDependency(
+                add_dependency(
                     row['attribute'], row['dependency'], dependencies)
             if row['dependent']:
                 # dependent is bi-directional (aka "required-if")
-                addDependency(row['attribute'], row['dependent'], dependencies)
-                addDependency(row['dependent'], row['attribute'], dependencies)
+                add_dependency(row['attribute'], row['dependent'], dependencies)
+                add_dependency(row['dependent'], row['attribute'], dependencies)
 
             # build dictionary for each attribute
             if row['default']:
@@ -203,9 +213,9 @@ def serialize_convention(convention, input_convention):
             # handle arrays of values
             if row['array']:
                 entry['type'] = 'array'
-                entry['items'] = buildArrayObject(row)
+                entry['items'] = build_array_object(row)
             else:
-                buildSingleObject(row, entry)
+                build_single_object(row, entry)
 
             if row['dependency_condition']:
                 entry['dependency_condition'] = row['dependency_condition']
@@ -222,13 +232,13 @@ def serialize_convention(convention, input_convention):
     return convention
 
 
-def writeSchema(dict, inputname, label, filename):
+def write_schema(dict, inputname, label, filename):
     if filename:
-        filename = generateOutputName(filename, label)
+        filename = generate_output_name(filename, label)
     else:
-        filename = generateOutputName(inputname, label)
-    dumpJSON(dict, filename)
-    writeJSONSchema(filename, cleanJSON(filename))
+        filename = generate_output_name(inputname, label)
+    dump_json(dict, filename)
+    write_json_schema(filename, clean_json(filename))
 
 
 if __name__ == '__main__':
@@ -237,6 +247,6 @@ if __name__ == '__main__':
     label = args.label
     output_file = args.output_file
     collective = args.collective
-    schemaInfo = buildSchemaInfo(collective)
+    schemaInfo = build_schema_info(collective)
     convention = serialize_convention(schemaInfo, input_convention)
-    writeSchema(convention, input_convention, label, output_file)
+    write_schema(convention, input_convention, label, output_file)
