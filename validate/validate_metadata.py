@@ -23,15 +23,13 @@ import jsonschema
 
 def create_parser():
     """
-    Command Line parser for validate_metadata
+    Parse command line values for validate_metadata
 
-    Inputs: metadata convention and metadata tsv files
     """
-    # create the argument parser
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    # add arguments
+
     parser.add_argument('--output', '-o', type=str,
                         help='Output file name [optional]', default=None)
     parser.add_argument('convention', type=str,
@@ -40,15 +38,71 @@ def create_parser():
                         help='Metadata tsv file [Required]')
     return parser
 
-if __name__ == '__main__':
-    args = create_parser().parse_args()
-
-
-    schemafile = args.convention
+def load_schema(schemafile):
+    """
+    Read Convention
+    :param schemafile: metadata convention file
+    :return: dict representing metadata convention
+    """
     with open(schemafile, "r") as read_file:
         schema = json.load(read_file)
 
     jsonschema.Draft7Validator.check_schema(schema)
+
+    return schema
+
+"""
+Read metadata tsv row by row
+
+"""
+
+"""
+Read loom metadata, row by row?
+"""
+
+"""
+DEFER handle array data types
+
+"""
+
+"""
+handle metadata tsv TYPE row
+"""
+
+"""
+pass intended data types to FireStore
+ensure numeric (TYPE == numeric in tsv; type number or integer in loom) stored as numeric
+ensure group (even if it is a number) stored as string
+NaN stored as null?
+error on empty cells
+"""
+
+"""
+Check tsv input format is valid
+"""
+
+"""
+Check loom format is valid
+  what are the criteria?
+"""
+
+"""
+ontology validation
+"""
+
+"""
+generate error report
+"""
+
+"""
+
+"""
+
+if __name__ == '__main__':
+    args = create_parser().parse_args()
+
+    schema = load_schema(args.convention)
+
 
     # filetsv = 'metadata_test3.tsv'
     filetsv = args.input_metadata
@@ -76,7 +130,7 @@ if __name__ == '__main__':
                   row[key] = float(value)
                 except:
                   pass
-            
+
         for error in v.iter_errors(row):
             print(row['NAME'], "error:", error.message)
 #        print(row)
