@@ -1,8 +1,20 @@
 #! /usr/bin/python
 
-import csv
-#! /usr/bin/python
+"""Validate input metadata tsv file against metadata convention
 
+DESCRIPTION
+This CLI takes a tsv metadata file and validates against a metadata convention
+using the python jsonschema library. The metadata convention JSON schema
+represents the rules that should be enforced on metadata files for studies
+participating under the convention.
+
+EXAMPLE
+# Using json file for Alexandria metadata convention tsv, validate input tsv
+$ validate_metadata.py AMC_v0.8.json metadata_test.tsv
+
+"""
+
+import csv
 import argparse
 import re
 import json
@@ -20,7 +32,7 @@ def create_parser():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     # add arguments
-    parser.add_argument('--output', '-0', type=str,
+    parser.add_argument('--output', '-o', type=str,
                         help='Output file name [optional]', default=None)
     parser.add_argument('convention', type=str,
                         help='Metadata convention json file [Required]')
@@ -55,6 +67,8 @@ if __name__ == '__main__':
         # DictReader values are strings: reformat all intended arrays from string
         # TODO replace empty values with NONE? or other handling for empties
         for key, value in row.items():
+            if not value:
+                row[key] = None
             if array_format.match(value):
                 row[key] = json.loads(value)
             if type[key] == "numeric":
@@ -62,6 +76,7 @@ if __name__ == '__main__':
                   row[key] = float(value)
                 except:
                   pass
+            
         for error in v.iter_errors(row):
             print(row['NAME'], "error:", error.message)
-    #    print(row)
+#        print(row)
