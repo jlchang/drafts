@@ -29,21 +29,39 @@ class Cell_Metadata:
         self.annotation_type = ['group', 'numeric']
         self.errors = defaultdict(list)
 
-    def validate_format(self):
-        if not self.headers[0] == 'NAME':
+    def validate_header_keyword(self):
+        if self.headers[0].casefold() == 'NAME'.casefold():
+            try:
+                self.headers.pop(self.headers.index('NAME'))
+            except ValueError:
+                print(
+                    'Warning: metadata file keyword "NAME" provided as {x}'.
+                    format(x=self.headers[0])
+                )
+                self.headers.pop(0)
+        else:
             self.errors['format'].append(
                 ('Error: Metadata file header row malformed, missing NAME')
             )
-            valid = False
+        return
+
+    def validate_type_keyword(self):
+        if self.metadata_types[0].casefold() == 'TYPE'.casefold():
+            try:
+                self.metadata_types.pop(self.metadata_types.index('TYPE'))
+            except ValueError:
+                print(
+                    'Warning: metadata file keyword "TYPE" provided as {x}'.
+                    format(x=self.metadata_types[0])
+                )
+                self.metadata_types.pop(0)
         else:
-            self.headers.remove('NAME')
-        if not self.metadata_types[0] == 'TYPE':
             self.errors['format'].append(
-                ('Error: Metadata file TYPE row malformed, missing TYPE')
+                ('Error:  Metadata file TYPE row malformed, missing TYPE')
             )
-            valid = False
-        else:
-            self.metadata_types.remove('TYPE')
+        return
+
+    def validate_type_annotations(self):
         annot_err = False
         annots = []
         for t in self.metadata_types:
@@ -53,21 +71,33 @@ class Cell_Metadata:
         if annot_err:
             self.errors['format'].append(
                 (
-                    'Error: TYPE declarations should be "group" or "numeric";'
-                    'please correct {annots}'.format(annots=annots)
-                )
-            )
-            valid = False
-        if not len(self.headers) == len(self.metadata_types):
-            self.errors['format'].append(
-                str(
-                    'Error: {x} TYPE declarations for {y} column headers'.
-                    format(
-                        x=len(self.headers) - 1, y=len(self.metadata_types) - 1
+                    'Error: TYPE declarations should be "group" or "numeric"; '
+                    'Please correct: {annots}'.format(
+                        annots=', '.join(map(str, annots))
                     )
                 )
             )
+        return
+
+    def validate_against_header_count(self, list):
+        if not len(self.headers) == len(list):
+            self.errors['format'].append(
+                str(
+                    'Error: {x} TYPE declarations for {y} column headers'.
+                    format(x=len(self.headers), y=len(list))
+                )
+            )
+        return
+
+    def validate_format(self):
+        self.validate_header_keyword()
+        self.validate_type_keyword()
+        self.validate_type_annotations()
+        self.validate_against_header_count(self.metadata_types)
+        if self.errors['format']:
             valid = False
+        else:
+            valid = True
         return valid
 
 
@@ -145,15 +175,10 @@ error on empty cells
 if __name__ == '__main__':
     args = create_parser().parse_args()
     schema = load_schema(args.convention)
-
-    # filetsv = 'metadata_test3.tsv'
     filetsv = args.input_metadata
     metadata = Cell_Metadata(filetsv)
     print('Validating', filetsv)
     metadata.validate_format()
-    # printing errors below is broken - need getter for errors?
-    # for error in metadata.errors['format']':
-    #     print("error:", error)
     print("error:", metadata.errors.items())
 
     # compiled regex to identify arrays in metadata file
