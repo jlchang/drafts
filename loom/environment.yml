@@ -1,0 +1,11 @@
+name: loom-env
+dependencies:
+- python=3.7
+- pip
+- pip:
+  - loompy
+  # Packages for IDE usage
+  - autopep8
+  - black
+  - pylint
+  - pylama

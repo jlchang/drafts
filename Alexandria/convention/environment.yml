@@ -4,3 +4,9 @@ dependencies:
 - pip
 - pip:
   - jsonschema
+  # packages for IDE usage
+  - black
+  - autopep8
+  - yapf
+  - pylint
+  - pylama
