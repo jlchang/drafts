@@ -110,14 +110,13 @@ def create_parser():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-
-    parser.add_argument(
-        '--output',
-        '-o',
-        type=str,
-        help='Output file name [optional]',
-        default=None
-    )
+    # parser.add_argument(
+    #     '--output',
+    #     '-o',
+    #     type=str,
+    #     help='Output file name [optional]',
+    #     default=None
+    # )
     parser.add_argument(
         'convention', type=str, help='Metadata convention json file [Required]'
     )
@@ -174,6 +173,7 @@ error on empty cells
 
 if __name__ == '__main__':
     args = create_parser().parse_args()
+    arguments = vars(args)
     schema = load_schema(args.convention)
     filetsv = args.input_metadata
     metadata = Cell_Metadata(filetsv)

@@ -10,3 +10,4 @@ dependencies:
   - yapf
   - pylint
   - pylama
+  - pep8

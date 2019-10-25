@@ -4,8 +4,10 @@ dependencies:
 - pip
 - pip:
   - loompy
+  - hca
   # Packages for IDE usage
   - autopep8
   - black
   - pylint
   - pylama
+  - pep8
