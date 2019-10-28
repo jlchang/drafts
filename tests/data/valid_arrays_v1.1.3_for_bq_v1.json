@@ -1,0 +1,211 @@
+{
+  "CellID": "BM01_16dpp_AAGCAGTGGTAT",
+  "disease__time_since_onset": [
+    12.0,
+    2.0
+  ],
+  "disease__time_since_onset__unit": "UO_0000035",
+  "disease__treated": [
+    false,
+    false
+  ],
+  "species": "NCBITaxon_9606",
+  "species__ontology_label": "Homo sapiens",
+  "geographical_region": "GAZ_00003181",
+  "geographical_region__ontology_label": "Boston",
+  "library_preparation_protocol": "EFO_0008919",
+  "library_preparation_protocol__ontology_label": "Seq-Well",
+  "organ": "UBERON_0001913",
+  "organ__ontology_label": "milk",
+  "sex": "female",
+  "is_living": "yes",
+  "organism_age__unit": "UO_0000036",
+  "organism_age__unit_label": "year",
+  "ethnicity__ontology_label": [
+    "European"
+  ],
+  "ethnicity": [
+    "HANCESTRO_0005"
+  ],
+  "sample_type": "direct from donor - fresh",
+  "organism_age": 31.0,
+  "disease": [
+    "MONDO_0005015",
+    "MONDO_0006849"
+  ],
+  "disease__ontology_label": [
+    "diabetes mellitus (disease)",
+    "mastitis"
+  ],
+  "cell_type": "CL_0000066",
+  "cell_type__ontology_label": "epithelial cell",
+  "biosample_id": "BM01_16dpp_r3"
+}
+{
+  "CellID": "BM01_16dpp_TAAGCAGTGGTA",
+  "disease__time_since_onset": [
+    1.0
+  ],
+  "disease__time_since_onset__unit": "UO_0000035",
+  "disease__treated": [
+    false
+  ],
+  "species": "NCBITaxon_9606",
+  "species__ontology_label": "Homo sapiens",
+  "geographical_region": "GAZ_00003181",
+  "geographical_region__ontology_label": "Boston",
+  "library_preparation_protocol": "EFO_0008919",
+  "library_preparation_protocol__ontology_label": "Seq-Well",
+  "organ": "UBERON_0001913",
+  "organ__ontology_label": "milk",
+  "sex": "female",
+  "is_living": "yes",
+  "organism_age__unit": "UO_0000036",
+  "organism_age__unit_label": "year",
+  "ethnicity__ontology_label": [
+    "European"
+  ],
+  "ethnicity": [
+    "HANCESTRO_0005"
+  ],
+  "sample_type": "direct from donor - fresh",
+  "organism_age": 31.0,
+  "disease": [
+    "MONDO_0005709"
+  ],
+  "disease__ontology_label": [
+    "common cold"
+  ],
+  "cell_type": "CL_0000066",
+  "cell_type__ontology_label": "epithelial cell",
+  "biosample_id": "BM01_16dpp_r3"
+}
+{
+  "CellID": "BM01_16dpp_CTAAGCAGTGGT",
+  "disease__time_since_onset": [
+    24.0,
+    2.0
+  ],
+  "disease__time_since_onset__unit": "UO_0000035",
+  "disease__treated": [
+    true,
+    false
+  ],
+  "species": "NCBITaxon_9606",
+  "species__ontology_label": "Homo sapiens",
+  "geographical_region": "GAZ_00003181",
+  "geographical_region__ontology_label": "Boston",
+  "library_preparation_protocol": "EFO_0008919",
+  "library_preparation_protocol__ontology_label": "Seq-Well",
+  "organ": "UBERON_0001913",
+  "organ__ontology_label": "milk",
+  "sex": "female",
+  "is_living": "yes",
+  "organism_age__unit": "UO_0000036",
+  "organism_age__unit_label": "year",
+  "ethnicity__ontology_label": [
+    "European"
+  ],
+  "ethnicity": [
+    "HANCESTRO_0005"
+  ],
+  "sample_type": "direct from donor - fresh",
+  "organism_age": 31.0,
+  "disease": [
+    "MONDO_0005015",
+    "MONDO_0005709"
+  ],
+  "disease__ontology_label": [
+    "diabetes mellitus (disease)",
+    "common cold"
+  ],
+  "cell_type": "CL_0000066",
+  "cell_type__ontology_label": "epithelial cell",
+  "biosample_id": "BM01_16dpp_r3"
+}
+{
+  "CellID": "BM01_16dpp_CGGTAAACCATT",
+  "disease__time_since_onset": [
+    36.0,
+    3.0,
+    1.0
+  ],
+  "disease__time_since_onset__unit": "UO_0000035",
+  "disease__treated": [
+    true,
+    false,
+    false
+  ],
+  "species": "NCBITaxon_9606",
+  "species__ontology_label": "Homo sapiens",
+  "geographical_region": "GAZ_00003181",
+  "geographical_region__ontology_label": "Boston",
+  "library_preparation_protocol": "EFO_0008919",
+  "library_preparation_protocol__ontology_label": "Seq-Well",
+  "organ": "UBERON_0001913",
+  "organ__ontology_label": "milk",
+  "sex": "female",
+  "is_living": "yes",
+  "organism_age__unit": "UO_0000036",
+  "organism_age__unit_label": "year",
+  "ethnicity__ontology_label": [
+    "European"
+  ],
+  "ethnicity": [
+    "HANCESTRO_0005"
+  ],
+  "sample_type": "direct from donor - fresh",
+  "organism_age": 31.0,
+  "disease": [
+    "MONDO_0005015",
+    "MONDO_0006849",
+    "MONDO_0005709"
+  ],
+  "disease__ontology_label": [
+    "diabetes mellitus (disease)",
+    "mastitis",
+    "common cold"
+  ],
+  "cell_type": "CL_0000066",
+  "cell_type__ontology_label": "epithelial cell",
+  "biosample_id": "BM01_16dpp_r3"
+}
+{
+  "CellID": "BM01_16dpp_CCGAATTCACCG",
+  "disease__time_since_onset": [
+    0.0
+  ],
+  "disease__time_since_onset__unit": "UO_0000035",
+  "disease__treated": [
+    false
+  ],
+  "species": "NCBITaxon_9606",
+  "species__ontology_label": "Homo sapiens",
+  "geographical_region": "GAZ_00003181",
+  "geographical_region__ontology_label": "Boston",
+  "library_preparation_protocol": "EFO_0008919",
+  "library_preparation_protocol__ontology_label": "Seq-Well",
+  "organ": "UBERON_0001913",
+  "organ__ontology_label": "milk",
+  "sex": "female",
+  "is_living": "yes",
+  "organism_age__unit": "UO_0000036",
+  "organism_age__unit_label": "year",
+  "ethnicity__ontology_label": [
+    "European"
+  ],
+  "ethnicity": [
+    "HANCESTRO_0005"
+  ],
+  "sample_type": "direct from donor - fresh",
+  "organism_age": 31.0,
+  "disease": [
+    "MONDO_0000001"
+  ],
+  "disease__ontology_label": [
+    "disease or disorder"
+  ],
+  "cell_type": "CL_0000066",
+  "cell_type__ontology_label": "epithelial cell",
+  "biosample_id": "BM01_16dpp_r3"
+}
