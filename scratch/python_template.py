@@ -1,14 +1,14 @@
 """Python script template
 
 DESCRIPTION
-Template to take in a command line argument for a file
+Template to take in a command line argument to open a TSV file in pandas dataframe
 
 EXAMPLE
 python python_template.py <file>
 """
 
 import argparse
-import csv
+import pandas as pd
 
 
 def create_parser():
@@ -27,7 +27,6 @@ if __name__ == '__main__':
     arguments = vars(args)
 
     tsv_file = open(args.input, 'r')
-    read_tsv = csv.reader(tsv_file, delimiter="\t")
-    for row in read_tsv:
-        print(row)
+    df = pd.read_csv(tsv_file)
+    print(df)
     tsv_file.close()
