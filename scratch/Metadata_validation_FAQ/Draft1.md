@@ -1,4 +1,4 @@
-### Common metadata validation errors and solutions
+## Common metadata validation errors and solutions
 
 ##### ERROR:'\<column header\>' is a required property
 | | |
