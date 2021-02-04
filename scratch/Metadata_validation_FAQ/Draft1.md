@@ -1,3 +1,5 @@
+### Common metadata validation errors and solutions
+
 ##### ERROR:'\<column header\>' is a required property
 | | |
 | --- | --- |
@@ -28,20 +30,4 @@
 |  Reason  | Metadata validation expected ontology IDs as values for the specified column header. |
 |  Solution  | Browse the ontology listed in [required conventional metadata](https://github.com/broadinstitute/single_cell_portal/wiki/Metadata-File#required-conventional-metadata) and select terms that best describe your data. Note that an ontology_label column with the natural language name is also required. |
 
-##### 
-| | |
-| --- | --- |
-|  Reason  |  |
-|  Solution  |  |
 
-##### 
-| | |
-| --- | --- |
-|  Reason  |  |
-|  Solution  |  |
-
-##### 
-| | |
-| --- | --- |
-|  Reason  |  |
-|  Solution  |  |
