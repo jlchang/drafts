@@ -22,7 +22,7 @@ end
 import argparse
 import os
 from pymongo import MongoClient
-import pprint
+import json
 from validate_metadata import (
     OntologyRetriever,
     MAX_HTTP_REQUEST_TIME,
@@ -63,24 +63,31 @@ if __name__ == "__main__":
             client.server_info()
             retriever = OntologyRetriever()
             db = client[db_name]
-            convention = "/Users/jlchang/Documents/GitHub/scp-ingest-pipeline/schema/alexandria_convention/alexandria_convention_schema.json"
+            convention_url = "/Users/jlchang/Documents/GitHub/scp-ingest-pipeline/schema/alexandria_convention/alexandria_convention_schema.json"
+            with open(convention_url, "r") as f:
+                convention = json.load(f)
+
             facets = list(db["search_facets"].find({"is_ontology_based": True}))
             for facet in facets:
-                if facet["name"] == "library preparation protocol":
-                    print(facet["name"])
+                # restore human_readable facet name to underscore delimited version
+                tmp = facet["name"].split()
+                fixed_name = "_".join(tmp)
+                if fixed_name != "organ_region":
+                    print(facet["name"], fixed_name)
                     print(facet["ontology_urls"])
                     for filter in facet["filters_with_external"]:
                         if filter["id"] == filter["name"]:
-                            print(f'skipping Azul string {filter["id"]}')
+                            print(f'     skipping Azul string {filter["id"]}')
                         else:
-                            print(f'check EBI OLS for {filter["id"]}')
+                            print(f'  check EBI OLS for {filter["id"]}')
+                            # breakpoint()
                             label_and_synonyms = retriever.retrieve_ontology_term_label_and_synonyms(
-                                filter["id"], facet["name"], convention, "ontology"
+                                filter["id"], fixed_name, convention, "ontology"
                             )
                             label = label_and_synonyms.get("label")
-                            synonyms = labels.get("synonyms")
+                            synonyms = label_and_synonyms.get("synonyms")
                             if filter["name"] == label:
-                                print(f'No change: {filter["name"]} is label')
+                                print(f'  No change: {filter["name"]} is label')
                             elif filter["name"].casefold() == label.casefold():
                                 print(f'CASE update: {filter["name"]} -> {label}')
                             elif synonyms:
@@ -95,9 +102,10 @@ if __name__ == "__main__":
                                     print(
                                         f'Synonym: {filter["name"]} is synonym of {label}'
                                     )
-
+                            else:
+                                print("no synonyms to check")
                 else:
-                    print(f"skipped {facet['name']}")
+                    print(f"skipped {facet['name']}, {fixed_name}")
                     pass
         except Exception as e:
             print(e)
