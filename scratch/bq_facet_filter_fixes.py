@@ -1,34 +1,31 @@
-"""Python script template
-
-PREREQ - before running script
-    source ~/bin/setup_mongo_prod
+"""bq_facet_filter_fixes.py
 
 DESCRIPTION
-Template to take in a command line argument to open a TSV file in pandas dataframe
+Open a file with an annotated Mongo query result, find outdated ontology labels, output BQ commands to update
 
 EXAMPLE
 python bq_facet_filter_fixes.py <input file>
 
-Input file is relevant sections of this Mongoid query of the SCP production database:
+Input file is result of this Mongoid query of the SCP production database:
+
 facets = SearchFacet.where(is_ontology_based: true)
-facets.each do |f|
-  p f.name
-  p f.ontology_urls
-  p f.filters_with_external
-end
+facets.each do |facet|
+    facet.filters_with_external.each do |f|
+        print facet.big_query_id_column, "|", f.to_json, "\n"
+    end
+ end
+
+orig file: /Users/jlchang/Documents/Broad/SCP/cb_work/2022/facet_filter_cleanup/prod_filters_20220111
 
 """
 
 import argparse
-import os
-from pymongo import MongoClient
 import json
 from validate_metadata import (
     OntologyRetriever,
     MAX_HTTP_REQUEST_TIME,
     MAX_HTTP_ATTEMPTS,
-)
-
+#add "has_narrow_synonym" to Ontology Retriever
 
 def create_parser():
     """Parse command line values
@@ -45,71 +42,66 @@ if __name__ == "__main__":
     args = create_parser().parse_args()
     arguments = vars(args)
 
-    if os.environ.get("DATABASE_HOST") is not None:
-        host = os.environ["DATABASE_HOST"]
-        user = os.environ["MONGODB_USERNAME"]
-        password = os.environ["MONGODB_PASSWORD"]
-        db_name = os.environ["DATABASE_NAME"]
+    # setup to use Ontology Retriever
+    retriever = OntologyRetriever()
+    convention_url = "/Users/jlchang/Documents/GitHub/scp-ingest-pipeline/schema/alexandria_convention/alexandria_convention_schema.json"
+    with open(convention_url, "r") as f:
+        convention = json.load(f)
 
-        try:
-            client = MongoClient(
-                host,
-                username=user,
-                password=password,
-                authSource=db_name,
-                authMechanism="SCRAM-SHA-1",
-            )
+    with open(args.input, "r") as file:
+        lines = file.readlines()
 
-            client.server_info()
-            retriever = OntologyRetriever()
-            db = client[db_name]
-            convention_url = "/Users/jlchang/Documents/GitHub/scp-ingest-pipeline/schema/alexandria_convention/alexandria_convention_schema.json"
-            with open(convention_url, "r") as f:
-                convention = json.load(f)
-
-            facets = list(db["search_facets"].find({"is_ontology_based": True}))
-            for facet in facets:
-                # restore human_readable facet name to underscore delimited version
-                tmp = facet["name"].split()
-                fixed_name = "_".join(tmp)
-                if fixed_name != "organ_region":
-                    print(facet["name"], fixed_name)
-                    print(facet["ontology_urls"])
-                    for filter in facet["filters_with_external"]:
-                        if filter["id"] == filter["name"]:
-                            print(f'     skipping Azul string {filter["id"]}')
-                        else:
-                            print(f'  check EBI OLS for {filter["id"]}')
-                            # breakpoint()
-                            label_and_synonyms = retriever.retrieve_ontology_term_label_and_synonyms(
-                                filter["id"], fixed_name, convention, "ontology"
-                            )
-                            label = label_and_synonyms.get("label")
-                            synonyms = label_and_synonyms.get("synonyms")
-                            if filter["name"] == label:
-                                print(f'  No change: {filter["name"]} is label')
-                            elif filter["name"].casefold() == label.casefold():
-                                print(f'CASE update: {filter["name"]} -> {label}')
-                            elif synonyms:
-                                if next(
-                                    (
-                                        t
-                                        for t in synonyms
-                                        if t.casefold() == provided_label.casefold()
-                                    ),
-                                    "",
-                                ):
-                                    print(
-                                        f'Synonym: {filter["name"]} is synonym of {label}'
-                                    )
-                            else:
-                                print("no synonyms to check")
-                else:
-                    print(f"skipped {facet['name']}, {fixed_name}")
+    results = [line.rstrip("\n") for line in lines]
+    old_facet = ""
+    azul_filters = []
+    for r in results:
+        facet_name, filter_info = r.split("|")
+        if old_facet != facet_name:
+            print(f"*** {facet_name}")
+            old_facet = facet_name
+        filter = json.loads(filter_info)
+        # print(f'{filter["id"]} {filter["name"]}')
+        if facet_name != "organ_region":
+            if filter["id"] == filter["name"]:
+                # print(f'     skipping Azul filter {filter["id"]}')
+                azul_filters.append((facet_name, filter["name"]))
+            else:
+                # print(f'  compare EBI OLS for {filter["id"]} with {filter["name"]}')
+                label_and_synonyms = retriever.retrieve_ontology_term_label_and_synonyms(
+                    filter["id"], facet_name, convention, "ontology"
+                )
+                label = label_and_synonyms.get("label")
+                synonyms = label_and_synonyms.get("synonyms")
+                if filter["name"] == label:
+                    # print(f'  No change: {filter["name"]} is current label')
                     pass
-        except Exception as e:
-            print(e)
+                elif filter["name"].casefold() == label.casefold():
+                    print(f'CASE update: {filter["name"]} -> {label}')
+                elif synonyms:
+                    if next(
+                        (
+                            t
+                            for t in synonyms
+                            if t.casefold() == filter["name"].casefold()
+                        ),
+                        "",
+                    ):
+                        print(f'Synonym: update "{filter["name"]}" to "{label}"')
+                else:
+                    print(
+                        f'Invalid label?: {filter["name"]} no longer valid for {filter["id"]} (check for additional synonym classes)'
+                    )
+        else:
+            if old_facet != facet_name:
+                print(f"skipped {facet_name}")
+                pass
 
-    else:
-        print("No DATABASE_HOST defined, did you source ~/bin/setup_mongo_prod?")
+    for a in azul_filters:
+        facet_name, azul_term = a
+        for term in retriever.cached_terms[facet_name]:
+            if azul_term in retriever.cached_terms[facet_name][term]["synonyms"]:
+                print(
+                    f'could assign azul filter "{azul_term}" to same ontology ID as "{retriever.cached_terms[facet_name][term]["label"]}"'
+                )
+                break
 
